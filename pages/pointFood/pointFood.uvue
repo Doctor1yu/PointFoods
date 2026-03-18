@@ -30,7 +30,6 @@
 	import { ensureFoods, loadCart, saveCart } from '@/common/dataStore'
 
 	const bannerImages = ref<string[]>([
-		'/static/swiper/swiper1.jpg',
 		'/static/swiper/swiper2.jpg',
 		'/static/swiper/swiper3.jpg',
 		'/static/swiper/swiper4.jpg'
