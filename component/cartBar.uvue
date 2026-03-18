@@ -1,0 +1,82 @@
+<template>
+	<view v-if="count > 0" class="bar" @click="emit('click')">
+		<view class="left">
+			<view class="bag">🛒</view>
+			<view class="badge">{{ count }}</view>
+		</view>
+		<view class="mid">查看购物车</view>
+		<view class="right">¥{{ money }}</view>
+	</view>
+</template>
+
+<script setup>
+	defineProps<{
+		count: number
+		money: string
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'click'): void
+	}>()
+</script>
+
+<style>
+	.bar {
+		position: fixed;
+		left: 14px;
+		right: 14px;
+		bottom: calc(58px + env(safe-area-inset-bottom));
+		height: 54px;
+		border-radius: 18px;
+		background-color: #0b1020;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0 16px;
+		box-shadow: 0 14px 26px rgba(0, 0, 0, 0.22);
+	}
+
+	.left {
+		position: relative;
+		width: 40px;
+		height: 40px;
+		border-radius: 20px;
+		background-color: rgba(255, 255, 255, 0.1);
+		align-items: center;
+		justify-content: center;
+	}
+
+	.bag {
+		color: #ffffff;
+		font-size: 18px;
+	}
+
+	.badge {
+		position: absolute;
+		right: -6px;
+		top: -6px;
+		min-width: 18px;
+		height: 18px;
+		padding: 0 5px;
+		border-radius: 9px;
+		background-color: #ffffff;
+		color: #0b1020;
+		font-size: 12px;
+		font-weight: 900;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.mid {
+		color: rgba(255, 255, 255, 0.92);
+		font-size: 15px;
+		font-weight: 900;
+	}
+
+	.right {
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: 900;
+	}
+</style>
+

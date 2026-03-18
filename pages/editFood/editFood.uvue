@@ -2,25 +2,177 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		
+		<view class="page">
+			<view class="top-actions">
+				<AddFoodButton @click="openAdd" />
+				<AddCategoryButton @click="openCategory" />
+			</view>
+			<EditCard v-for="f in foods" :key="f.id" :item="f" @edit="openEdit" @delete="onDelete" />
+		</view>
+
+		<CategoryManager
+			:show="categoryOpen"
+			:categories="categories"
+			@close="categoryOpen = false"
+			@add="onAddCategory"
+			@delete="onDeleteCategory"
+		/>
+
+		<EditInterface
+			:show="editOpen"
+			:mode="editMode"
+			:item="editing"
+			@close="closeEdit"
+			@save="onSave"
+		/>
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				
-			}
+<script setup>
+	import { ref } from 'vue'
+	import AddFoodButton from '@/component/addFoodButton.uvue'
+	import AddCategoryButton from '@/component/addCategoryButton.uvue'
+	import EditCard from '@/component/editCard.uvue'
+	import EditInterface from '@/component/editInterface.uvue'
+	import CategoryManager from '@/component/categoryManager.uvue'
+	import { loadFoods, saveFoods } from '@/common/dataStore'
+
+	type FoodItem = {
+		id: string | number
+		name: string
+		price: number
+		category: string
+		description: string
+		image: string
+	}
+
+	const fallbackFoods: FoodItem[] = [
+		{
+			id: '1',
+			name: '宫保鸡丁',
+			price: 38,
+			category: '川菜',
+			description: '经典川菜，香辣可口',
+			image:
+				'https://images.unsplash.com/photo-1690370714705-6fd90ab5807d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGluZXNlJTIwa3VuZyUyMHBhbyUyMGNoaWNrZW4lMjBkaXNofGVufDF8fHx8MTc3MzY0OTQ0Mnww&ixlib=rb-4.1.0&q=80&w=1080'
 		},
-		methods: {
-			
+		{
+			id: '2',
+			name: '麻婆豆腐',
+			price: 28,
+			category: '川菜',
+			description: '麻辣鲜香，下饭佳品',
+			image:
+				'https://images.unsplash.com/photo-1769065647078-f067eb768035?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXBvJTIwdG9mdSUyMGNoaW5lc2UlMjBmb29kfGVufDF8fHx8MTc3MzY0OTQ0M3ww&ixlib=rb-4.1.0&q=80&w=1080'
+		},
+		{
+			id: '3',
+			name: '西湖醋鱼',
+			price: 68,
+			category: '浙菜',
+			description: '酸甜可口，鱼肉鲜嫩',
+			image:
+				'https://images.unsplash.com/photo-1560582346-4691ac12f6ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZXN0JTIwbGFrZSUyMGZpc2glMjBjaGluZXNlJTIwY3Vpc2luZXxlbnwxfHx8fDE3NzM2NDk0NDN8MA&ixlib=rb-4.1.0&q=80&w=1080'
+		},
+		{
+			id: '4',
+			name: '红烧肉',
+			price: 48,
+			category: '家常菜',
+			description: '肥而不腻，入口即化',
+			image:
+				'https://images.unsplash.com/photo-1759392773285-0f86affdf1df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFpc2VkJTIwcG9yayUyMGJlbGx5JTIwY2hpbmVzZXxlbnwxfHx8fDE3NzM2NDk0NDR8MA&ixlib=rb-4.1.0&q=80&w=1080'
 		}
+	]
+
+	const foods = ref<FoodItem[]>(loadFoods(fallbackFoods))
+
+	const categories = ref<string[]>(Array.from(new Set(foods.value.map((f) => f.category))).filter(Boolean))
+
+	const editOpen = ref(false)
+	const editing = ref<FoodItem | null>(null)
+	const editMode = ref<'edit' | 'add'>('edit')
+	const categoryOpen = ref(false)
+
+	function openAdd() {
+		editMode.value = 'add'
+		editing.value = null
+		editOpen.value = true
+	}
+
+	function openCategory() {
+		categoryOpen.value = true
+	}
+
+	function openEdit(item: FoodItem) {
+		editMode.value = 'edit'
+		editing.value = { ...item }
+		editOpen.value = true
+	}
+
+	function closeEdit() {
+		editOpen.value = false
+		editing.value = null
+	}
+
+	function onSave(next: FoodItem) {
+		if (editMode.value === 'add') {
+			foods.value = [next, ...foods.value]
+		} else {
+			const idx = foods.value.findIndex((x) => x.id === next.id)
+			if (idx >= 0) foods.value[idx] = next
+		}
+		saveFoods(foods.value)
+		const c = String(next.category || '').trim()
+		if (c && !categories.value.includes(c)) categories.value = [...categories.value, c]
+		closeEdit()
+	}
+
+	function onAddCategory(name: string) {
+		const n = String(name || '').trim()
+		if (!n) return
+		if (categories.value.includes(n)) return
+		categories.value = [...categories.value, n]
+	}
+
+	function onDeleteCategory(name: string) {
+		const n = String(name || '').trim()
+		if (!n) return
+		uni.showModal({
+			title: '删除分类',
+			content: `确认删除分类「${n}」吗？删除后相关菜品将变为「未分类」。`,
+			success: (res) => {
+				if (!res.confirm) return
+				categories.value = categories.value.filter((x) => x !== n)
+				foods.value = foods.value.map((f) => (f.category === n ? { ...f, category: '未分类' } : f))
+				if (!categories.value.includes('未分类')) categories.value = [...categories.value, '未分类']
+			}
+		})
+	}
+
+	function onDelete(item: FoodItem) {
+		uni.showModal({
+			title: '删除菜品',
+			content: `确认删除「${item.name}」吗？`,
+			success: (res) => {
+				if (!res.confirm) return
+				foods.value = foods.value.filter((x) => x.id !== item.id)
+				saveFoods(foods.value)
+			}
+		})
 	}
 </script>
 
 <style>
+	.page {
+		padding: 6px 0 18px;
+	}
 
+	.top-actions {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
 </style>

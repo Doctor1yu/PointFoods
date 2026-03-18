@@ -1,0 +1,307 @@
+<template>
+	<view class="page">
+		<view v-if="cartItems.length === 0" class="empty">购物车为空</view>
+
+		<view v-else class="list">
+			<view v-for="it in cartItems" :key="it.id" class="card">
+				<image class="img" :src="it.image" mode="aspectFill" />
+				<view class="main">
+					<view class="name">{{ it.name }}</view>
+					<view class="desc">{{ it.description }}</view>
+					<view class="bottom">
+						<view class="price">¥{{ it.price }}</view>
+						<view class="stepper">
+							<view class="btn btn-sub" @click="sub(it.id)">－</view>
+							<view class="count">{{ it.qty }}</view>
+							<view class="btn btn-add" @click="add(it.id)">＋</view>
+							<view class="trash" @click="remove(it.id)">🗑</view>
+						</view>
+					</view>
+				</view>
+			</view>
+
+			<view class="sum-row">
+				<view class="k">小计</view>
+				<view class="v">¥{{ money }}</view>
+			</view>
+
+			<view class="sum-card">
+				<view class="sum-left">共 {{ count }} 件商品</view>
+				<view class="sum-right">¥{{ money }}</view>
+			</view>
+		</view>
+
+		<view class="bottom-bar">
+			<view class="btn" :class="{ disabled: cartItems.length === 0 }" @click="submit">确认下单</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	import { computed, ref } from 'vue'
+	import {
+		clearCart,
+		ensureFoods,
+		loadCart,
+		loadOrders,
+		nowTimeString,
+		saveCart,
+		saveOrders,
+		setOrderSuccessFlag,
+		uuid
+	} from '@/common/dataStore'
+
+	type Food = {
+		id: string | number
+		name: string
+		price: number
+		category: string
+		description: string
+		image: string
+	}
+
+	const foods = ref<Food[]>([])
+	const cart = ref<Record<string, number>>({})
+
+	function refresh() {
+		foods.value = ensureFoods([])
+		cart.value = loadCart()
+	}
+
+	refresh()
+
+	// uni-app page lifecycle (script setup)
+	onShow(() => {
+		refresh()
+	})
+
+	const cartItems = computed(() => {
+		const map = cart.value || {}
+		return foods.value
+			.map((f) => ({
+				...f,
+				qty: Number(map[String(f.id)]) || 0
+			}))
+			.filter((x) => x.qty > 0)
+	})
+
+	const count = computed(() => cartItems.value.reduce((s, it) => s + it.qty, 0))
+	const total = computed(() => cartItems.value.reduce((s, it) => s + it.qty * Number(it.price || 0), 0))
+	const money = computed(() => total.value.toFixed(2))
+
+	function persist() {
+		saveCart(cart.value)
+	}
+
+	function add(id: any) {
+		const k = String(id)
+		cart.value[k] = (cart.value[k] || 0) + 1
+		persist()
+	}
+
+	function sub(id: any) {
+		const k = String(id)
+		const cur = cart.value[k] || 0
+		const next = Math.max(0, cur - 1)
+		if (next === 0) delete cart.value[k]
+		else cart.value[k] = next
+		persist()
+	}
+
+	function remove(id: any) {
+		const k = String(id)
+		delete cart.value[k]
+		persist()
+	}
+
+	function submit() {
+		if (cartItems.value.length === 0) return
+		const items = cartItems.value.map((it) => ({
+			id: it.id,
+			name: it.name,
+			qty: it.qty,
+			price: Number(it.price || 0)
+		}))
+
+		const order = {
+			id: uuid(),
+			time: nowTimeString(),
+			status: '已完成',
+			items
+		}
+
+		const orders = loadOrders()
+		saveOrders([order, ...orders])
+		clearCart()
+		setOrderSuccessFlag('下单成功')
+		uni.switchTab({ url: '/pages/historyFood/historyFood' })
+	}
+</script>
+
+<style>
+	.page {
+		min-height: 100vh;
+		padding-bottom: calc(84px + env(safe-area-inset-bottom));
+	}
+
+	.empty {
+		margin-top: 60px;
+		text-align: center;
+		color: rgba(17, 24, 39, 0.55);
+		font-size: 14px;
+	}
+
+	.list {
+		padding: 8px 0 18px;
+	}
+
+	.card {
+		flex-direction: row;
+		align-items: center;
+		background-color: rgba(255, 255, 255, 0.92);
+		border-radius: 14px;
+		padding: 12px;
+		margin: 10px 12px;
+		box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+	}
+
+	.img {
+		width: 78px;
+		height: 78px;
+		border-radius: 12px;
+		background-color: #f2f2f2;
+	}
+
+	.main {
+		flex: 1;
+		margin-left: 12px;
+	}
+
+	.name {
+		font-size: 18px;
+		font-weight: 800;
+		color: #111827;
+	}
+
+	.desc {
+		margin-top: 4px;
+		font-size: 13px;
+		color: #6b7280;
+		line-height: 18px;
+	}
+
+	.bottom {
+		margin-top: 10px;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.price {
+		font-size: 18px;
+		font-weight: 800;
+		color: #ff2d2d;
+	}
+
+	.stepper {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.btn {
+		width: 34px;
+		height: 34px;
+		border-radius: 17px;
+		align-items: center;
+		justify-content: center;
+		font-size: 20px;
+		line-height: 20px;
+	}
+
+	.btn-sub {
+		border-width: 1px;
+		border-style: solid;
+		border-color: rgba(0, 0, 0, 0.16);
+		color: rgba(0, 0, 0, 0.55);
+		background-color: rgba(255, 255, 255, 0.85);
+	}
+
+	.btn-add {
+		background-color: #0b1020;
+		color: #ffffff;
+	}
+
+	.count {
+		width: 26px;
+		text-align: center;
+		font-size: 16px;
+		font-weight: 700;
+		color: #111827;
+		margin: 0 8px;
+	}
+
+	.trash {
+		margin-left: 10px;
+		width: 34px;
+		height: 34px;
+		border-radius: 10px;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(255, 0, 0, 0.08);
+		color: #ff2d2d;
+	}
+
+	.sum-row {
+		margin: 10px 12px 0;
+		flex-direction: row;
+		justify-content: space-between;
+		color: rgba(17, 24, 39, 0.75);
+	}
+
+	.sum-card {
+		margin: 10px 12px;
+		background-color: rgba(255, 255, 255, 0.92);
+		border-radius: 14px;
+		padding: 12px;
+		flex-direction: row;
+		justify-content: space-between;
+		box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+	}
+
+	.sum-left {
+		color: rgba(17, 24, 39, 0.7);
+		font-size: 13px;
+	}
+
+	.sum-right {
+		color: #ff2d2d;
+		font-size: 22px;
+		font-weight: 900;
+	}
+
+	.bottom-bar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+		background-color: rgba(255, 255, 255, 0.9);
+	}
+
+	.bottom-bar .btn {
+		width: 100%;
+		height: 52px;
+		border-radius: 14px;
+		align-items: center;
+		justify-content: center;
+		background-color: #0b1020;
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: 900;
+	}
+
+	.bottom-bar .btn.disabled {
+		opacity: 0.4;
+	}
+</style>
+

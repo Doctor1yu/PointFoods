@@ -7,6 +7,12 @@
 			}
 		},
 		{
+			"path": "pages/cart/cart",
+			"style": {
+				"navigationBarTitleText": "购物车"
+			}
+		},
+		{
 			"path": "pages/editFood/editFood",
 			"style": {
 				"navigationBarTitleText": "修改菜单"
@@ -29,29 +35,28 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "点餐系统",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8",
-		"backgroundImage":""
+		"backgroundColor": "#F8F8F8"
 	},
 	"tabBar": {
 		"list": [{
 			"pagePath": "pages/pointFood/pointFood",
-			"iconPath": "/static/diancai.png",
-			"selectedIconPath": "/static/diancai-select.png",
+			"iconPath": "/static/tabBar/diancai.png",
+			"selectedIconPath": "/static/tabBar/diancai-select.png",
 			"text": ""
 		}, {
 			"pagePath": "pages/editFood/editFood",
-			"iconPath": "/static/xiugaidingdan.png",
-			"selectedIconPath": "/static/xiugaidingdan-select.png",
+			"iconPath": "/static/tabBar/xiugaidingdan.png",
+			"selectedIconPath": "/static/tabBar/xiugaidingdan-select.png",
 			"text": ""
 		}, {
 			"pagePath": "pages/historyFood/historyFood",
-			"iconPath": "/static/lishixiao.png",
-			"selectedIconPath": "/static/lishixiao-select.png",
+			"iconPath": "/static/tabBar/lishixiao.png",
+			"selectedIconPath": "/static/tabBar/lishixiao-select.png",
 			"text": ""
 		}, {
 			"pagePath": "pages/mine/mine",
-			"iconPath": "/static/wode.png",
-			"selectedIconPath": "/static/wode-select.png",
+			"iconPath": "/static/tabBar/wode.png",
+			"selectedIconPath": "/static/tabBar/wode-select.png",
 			"text": ""
 		}]
 	}

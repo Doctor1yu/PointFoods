@@ -1,0 +1,151 @@
+<template>
+	<view class="food-card">
+		<image class="food-img" :src="item.image" mode="aspectFill" />
+
+		<view class="food-main">
+			<view class="food-title">{{ item.name }}</view>
+			<view v-if="item.category" class="food-meta">{{ item.category }}</view>
+			<view class="food-desc">{{ item.description ?? item.desc }}</view>
+			<view class="food-bottom">
+				<view class="food-price">¥{{ item.price }}</view>
+
+				<view class="stepper">
+					<view v-if="safeCount > 0" class="btn btn-sub" @click="onSub">－</view>
+					<view v-if="safeCount > 0" class="count">{{ safeCount }}</view>
+					<view class="btn btn-add" @click="onAdd">＋</view>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	type FoodItem = {
+		id: string | number
+		name: string
+		desc?: string
+		description?: string
+		category?: string
+		price: number | string
+		image: string
+	}
+
+	const props = defineProps<{
+		item: FoodItem
+		count?: number
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'add', item: FoodItem): void
+		(e: 'sub', item: FoodItem): void
+	}>()
+
+	const safeCount = computed(() => props.count ?? 0)
+
+	function onAdd() {
+		emit('add', props.item)
+	}
+
+	function onSub() {
+		emit('sub', props.item)
+	}
+</script>
+
+<style>
+	.food-card {
+		flex-direction: row;
+		align-items: center;
+		background-color: rgba(255, 255, 255, 0.92);
+		border-radius: 14px;
+		padding: 12px;
+		margin: 10px 12px;
+		box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+	}
+
+	.food-img {
+		width: 78px;
+		height: 78px;
+		border-radius: 12px;
+		background-color: #f2f2f2;
+	}
+
+	.food-main {
+		flex: 1;
+		margin-left: 12px;
+	}
+
+	.food-title {
+		font-size: 18px;
+		font-weight: 700;
+		color: #111827;
+		line-height: 24px;
+	}
+
+	.food-desc {
+		margin-top: 4px;
+		font-size: 13px;
+		color: #6b7280;
+		line-height: 18px;
+	}
+
+	.food-meta {
+		margin-top: 6px;
+		align-self: flex-start;
+		padding: 2px 8px;
+		border-radius: 999px;
+		background-color: rgba(17, 24, 39, 0.06);
+		color: rgba(17, 24, 39, 0.7);
+		font-size: 12px;
+		line-height: 16px;
+	}
+
+	.food-bottom {
+		margin-top: 10px;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.food-price {
+		font-size: 18px;
+		font-weight: 800;
+		color: #ff2d2d;
+	}
+
+	.stepper {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.btn {
+		width: 34px;
+		height: 34px;
+		border-radius: 17px;
+		align-items: center;
+		justify-content: center;
+		font-size: 20px;
+		line-height: 20px;
+	}
+
+	.btn-sub {
+		border-width: 1px;
+		border-style: solid;
+		border-color: rgba(0, 0, 0, 0.16);
+		color: rgba(0, 0, 0, 0.55);
+		background-color: rgba(255, 255, 255, 0.85);
+	}
+
+	.btn-add {
+		background-color: #0b1020;
+		color: #ffffff;
+	}
+
+	.count {
+		width: 26px;
+		text-align: center;
+		font-size: 16px;
+		font-weight: 700;
+		color: #111827;
+		margin: 0 8px;
+	}
+</style>

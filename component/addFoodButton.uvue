@@ -1,0 +1,43 @@
+<template>
+	<view class="wrap">
+		<view class="btn" @click="emit('click')">
+			<text class="plus">＋</text>
+			<text class="txt">添加菜品</text>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	const emit = defineEmits<{
+		(e: 'click'): void
+	}>()
+</script>
+
+<style>
+	.wrap {
+		padding: 12px 12px 4px;
+	}
+
+	.btn {
+		align-self: flex-start;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 14px;
+		border-radius: 12px;
+		background-color: #0b1020;
+	}
+
+	.plus {
+		color: #ffffff;
+		font-size: 16px;
+		font-weight: 900;
+		margin-right: 8px;
+	}
+
+	.txt {
+		color: #ffffff;
+		font-size: 14px;
+		font-weight: 800;
+	}
+</style>

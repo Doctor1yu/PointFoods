@@ -35,6 +35,14 @@
 </script>
 
 <style>
+	/* 全局页面背景图 */
+	page {
+		background-image: url('/static/background2.jpg');
+		background-repeat: repeat-y;
+		background-size: cover;
+		background-position: center top;
+	}
+
 	/*每个页面公共css */
 	.uni-row {
 		flex-direction: row;
@@ -43,4 +51,5 @@
 	.uni-column {
 		flex-direction: column;
 	}
+	
 </style>

@@ -1,0 +1,214 @@
+<template>
+	<view v-if="show" class="overlay" @click="onMask">
+		<view class="sheet" @click.stop>
+			<view class="header">
+				<view>
+					<view class="title">{{ mode === 'add' ? '添加菜品' : '编辑菜品' }}</view>
+					<view class="sub">{{ mode === 'add' ? '添加新的菜品' : '编辑现有的菜品信息' }}</view>
+				</view>
+				<view class="close" @click="emit('close')">×</view>
+			</view>
+
+			<view class="form">
+				<view class="label">菜品名称</view>
+				<input class="input" v-model="draft.name" />
+
+				<view class="label">价格（元）</view>
+				<input class="input" type="number" v-model="draft.price" />
+
+				<view class="label">分类</view>
+				<input class="input" v-model="draft.category" />
+
+				<view class="label">描述</view>
+				<textarea class="textarea" v-model="draft.description" />
+
+				<view class="label">图片URL</view>
+				<input class="input" v-model="draft.image" />
+			</view>
+
+			<view class="footer">
+				<view class="btn ghost" @click="emit('close')">取消</view>
+				<view class="btn primary" @click="onSave">{{ mode === 'add' ? '添加' : '保存' }}</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	import { reactive, watch } from 'vue'
+
+	type FoodItem = {
+		id: string | number
+		name: string
+		price: number | string
+		category?: string
+		description?: string
+		image: string
+	}
+
+	const props = defineProps<{
+		show: boolean
+		mode?: 'edit' | 'add'
+		item?: FoodItem | null
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'close'): void
+		(e: 'save', item: FoodItem): void
+	}>()
+
+	const draft = reactive<FoodItem>({
+		id: '',
+		name: '',
+		price: '',
+		category: '',
+		description: '',
+		image: ''
+	})
+
+	watch(
+		() => [props.item, props.show, props.mode] as const,
+		([v, show, mode]) => {
+			if (!show) return
+			if (mode === 'add' || !v) {
+				draft.id = ''
+				draft.name = ''
+				draft.price = ''
+				draft.category = ''
+				draft.description = ''
+				draft.image = ''
+				return
+			}
+			draft.id = v.id
+			draft.name = v.name
+			draft.price = v.price
+			draft.category = v.category || ''
+			draft.description = v.description || ''
+			draft.image = v.image
+		},
+		{ immediate: true }
+	)
+
+	function onMask() {
+		emit('close')
+	}
+
+	function onSave() {
+		const id =
+			props.mode === 'add'
+				? String(Date.now())
+				: draft.id
+		emit('save', {
+			id,
+			name: String(draft.name || '').trim(),
+			price: Number(draft.price),
+			category: String(draft.category || '').trim(),
+			description: String(draft.description || '').trim(),
+			image: String(draft.image || '').trim()
+		})
+	}
+</script>
+
+<style>
+	.overlay {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.35);
+		justify-content: flex-end;
+	}
+
+	.sheet {
+		background-color: rgba(255, 255, 255, 0.96);
+		border-top-left-radius: 18px;
+		border-top-right-radius: 18px;
+		padding: 16px;
+		margin-bottom: 58px; /* 让弹窗在 TabBar 上方 */
+		padding-bottom: calc(16px + env(safe-area-inset-bottom));
+	}
+
+	.header {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.title {
+		font-size: 18px;
+		font-weight: 900;
+		color: #111827;
+	}
+
+	.sub {
+		margin-top: 4px;
+		font-size: 13px;
+		color: rgba(17, 24, 39, 0.6);
+	}
+
+	.close {
+		width: 34px;
+		height: 34px;
+		border-radius: 10px;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(17, 24, 39, 0.06);
+		color: rgba(17, 24, 39, 0.8);
+		font-size: 22px;
+		line-height: 22px;
+	}
+
+	.form {
+		margin-top: 14px;
+	}
+
+	.label {
+		margin-top: 12px;
+		margin-bottom: 6px;
+		font-size: 13px;
+		color: rgba(17, 24, 39, 0.75);
+		font-weight: 700;
+	}
+
+	.input {
+		background-color: rgba(17, 24, 39, 0.04);
+		border-radius: 10px;
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+
+	.textarea {
+		background-color: rgba(17, 24, 39, 0.04);
+		border-radius: 10px;
+		padding: 10px 12px;
+		font-size: 14px;
+		min-height: 84px;
+	}
+
+	.footer {
+		margin-top: 16px;
+		flex-direction: row;
+		gap: 12px;
+	}
+
+	.btn {
+		flex: 1;
+		height: 44px;
+		border-radius: 12px;
+		align-items: center;
+		justify-content: center;
+		font-size: 15px;
+		font-weight: 800;
+	}
+
+	.btn.ghost {
+		background-color: rgba(17, 24, 39, 0.06);
+		color: rgba(17, 24, 39, 0.85);
+	}
+
+	.btn.primary {
+		background-color: #0b1020;
+		color: #ffffff;
+	}
+</style>

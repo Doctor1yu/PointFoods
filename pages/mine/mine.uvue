@@ -2,7 +2,45 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		
+		<view class="page">
+			<view class="card">
+				<view class="card-title">
+					<text class="emoji">🎨</text>
+					<text class="title">主题设置</text>
+				</view>
+
+				<view
+					v-for="t in themes"
+					:key="t.key"
+					class="theme-row"
+					:class="{ active: theme === t.key }"
+					@click="pickTheme(t.key)"
+				>
+					<view class="swatch" :style="{ background: t.previewBg }"></view>
+					<text class="label">{{ t.label }}</text>
+					<text v-if="theme === t.key" class="check">✓</text>
+				</view>
+			</view>
+
+			<view class="card">
+				<view class="card-title">
+					<text class="emoji">ℹ️</text>
+					<text class="title">关于</text>
+				</view>
+				<view class="about-row">
+					<text class="k">应用名称</text>
+					<text class="v">点餐系统</text>
+				</view>
+				<view class="about-row">
+					<text class="k">版本</text>
+					<text class="v">1.0.0</text>
+				</view>
+				<view class="about-row">
+					<text class="k">更新日期</text>
+					<text class="v">2026-03-16</text>
+				</view>
+			</view>
+		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
@@ -12,15 +50,157 @@
 	export default {
 		data() {
 			return {
-				
+				theme: 'light',
+				themes: [
+					{ key: 'light', label: '浅色主题', previewBg: '#f1f5f9' },
+					{ key: 'dark', label: '深色主题', previewBg: '#0b1020' },
+					]
 			}
 		},
+		onShow() {
+			const t = uni.getStorageSync('theme') || 'light'
+			this.theme = t
+			this.applyTheme(t)
+		},
 		methods: {
-			
+			pickTheme(key) {
+				this.theme = key
+				uni.setStorageSync('theme', key)
+				this.applyTheme(key)
+			},
+			applyTheme(key) {
+				// 先把导航/TabBar 颜色切换出来，视觉上就能感知主题变化
+				if (key === 'dark') {
+					uni.setNavigationBarColor({
+						frontColor: '#ffffff',
+						backgroundColor: '#0b1020'
+					})
+					uni.setTabBarStyle({
+						color: '#94a3b8',
+						selectedColor: '#ffffff',
+						backgroundColor: '#0b1020',
+						borderStyle: 'black'
+					})
+				} else if (key === 'kitty') {
+					uni.setNavigationBarColor({
+						frontColor: '#000000',
+						backgroundColor: '#ffe6f2'
+					})
+					uni.setTabBarStyle({
+						color: '#6b7280',
+						selectedColor: '#ff2d86',
+						backgroundColor: '#fff0f7',
+						borderStyle: 'white'
+					})
+				} else {
+					uni.setNavigationBarColor({
+						frontColor: '#000000',
+						backgroundColor: '#F8F8F8'
+					})
+					uni.setTabBarStyle({
+						color: '#6b7280',
+						selectedColor: '#0b1020',
+						backgroundColor: '#ffffff',
+						borderStyle: 'white'
+					})
+				}
+			}
 		}
 	}
 </script>
 
 <style>
+	.page {
+		padding: 12px;
+	}
 
+	.card {
+		background-color: rgba(255, 255, 255, 0.92);
+		border-radius: 14px;
+		padding: 14px;
+		margin-bottom: 12px;
+		box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+	}
+
+	.card-title {
+		flex-direction: row;
+		align-items: center;
+		margin-bottom: 10px;
+	}
+
+	.emoji {
+		margin-right: 8px;
+	}
+
+	.title {
+		font-size: 16px;
+		font-weight: 900;
+		color: #111827;
+	}
+
+	.theme-row {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 12px;
+		border-radius: 12px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: rgba(17, 24, 39, 0.08);
+		margin-top: 10px;
+		background-color: rgba(255, 255, 255, 0.7);
+	}
+
+	.theme-row.active {
+		border-color: rgba(59, 130, 246, 0.65);
+		background-color: rgba(219, 234, 254, 0.55);
+	}
+
+	.swatch {
+		width: 34px;
+		height: 34px;
+		border-radius: 10px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: rgba(17, 24, 39, 0.12);
+	}
+
+	.label {
+		flex: 1;
+		margin-left: 12px;
+		font-size: 15px;
+		font-weight: 800;
+		color: rgba(17, 24, 39, 0.88);
+	}
+
+	.check {
+		font-size: 16px;
+		font-weight: 900;
+		color: #2563eb;
+	}
+
+	.about-row {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 10px 0;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: rgba(17, 24, 39, 0.06);
+	}
+
+	.about-row:last-child {
+		border-bottom-width: 0px;
+	}
+
+	.k {
+		color: rgba(17, 24, 39, 0.7);
+		font-size: 13px;
+	}
+
+	.v {
+		color: rgba(17, 24, 39, 0.9);
+		font-size: 13px;
+		font-weight: 800;
+	}
 </style>

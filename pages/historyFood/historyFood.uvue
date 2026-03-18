@@ -2,17 +2,29 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		
+		<view class="page">
+			<HistoryCard v-for="o in orders" :key="o.id" :order="o" />
+		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
 </template>
 
 <script>
+	import HistoryCard from '@/component/historyCard.uvue'
+	import { consumeOrderSuccessFlag, loadOrders } from '@/common/dataStore'
 	export default {
+		components: { HistoryCard },
 		data() {
 			return {
-				
+				orders: []
+			}
+		},
+		onShow() {
+			this.orders = loadOrders()
+			const msg = consumeOrderSuccessFlag()
+			if (msg) {
+				uni.showToast({ title: msg, icon: 'success' })
 			}
 		},
 		methods: {
@@ -22,5 +34,7 @@
 </script>
 
 <style>
-
+	.page {
+		padding: 6px 0 18px;
+	}
 </style>

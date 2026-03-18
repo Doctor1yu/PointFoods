@@ -1,0 +1,92 @@
+<template>
+	<view class="wrap">
+		<view class="title">菜谱列表</view>
+		<scroll-view class="tabs" scroll-x :show-scrollbar="false">
+			<view class="tabs-inner">
+				<view
+					v-for="c in categories"
+					:key="c.key"
+					class="tab"
+					:class="{ active: c.key === modelValue }"
+					@click="onPick(c.key)"
+				>
+					<text class="icon">{{ c.icon }}</text>
+					<text class="label">{{ c.label }}</text>
+				</view>
+			</view>
+		</scroll-view>
+	</view>
+</template>
+
+<script setup>
+	type CategoryItem = {
+		key: string
+		label: string
+		icon?: string
+	}
+
+	const props = defineProps<{
+		categories: CategoryItem[]
+		modelValue: string
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'update:modelValue', v: string): void
+	}>()
+
+	function onPick(key: string) {
+		emit('update:modelValue', key)
+	}
+</script>
+
+<style>
+	.wrap {
+		margin: 6px 12px 2px;
+	}
+
+	.title {
+		font-size: 15px;
+		font-weight: 700;
+		color: rgba(17, 24, 39, 0.9);
+		margin: 6px 2px 8px;
+	}
+
+	.tabs {
+		width: 100%;
+	}
+
+	.tabs-inner {
+		flex-direction: row;
+		align-items: center;
+		padding: 2px 0 8px;
+	}
+
+	.tab {
+		flex-direction: row;
+		align-items: center;
+		padding: 8px 12px;
+		border-radius: 999px;
+		margin-right: 10px;
+		background-color: rgba(255, 255, 255, 0.7);
+		border-width: 1px;
+		border-style: solid;
+		border-color: rgba(17, 24, 39, 0.08);
+	}
+
+	.tab.active {
+		background-color: rgba(255, 255, 255, 0.92);
+		border-color: rgba(245, 158, 11, 0.45);
+	}
+
+	.icon {
+		margin-right: 6px;
+		font-size: 13px;
+		line-height: 13px;
+	}
+
+	.label {
+		font-size: 13px;
+		font-weight: 700;
+		color: rgba(17, 24, 39, 0.85);
+	}
+</style>

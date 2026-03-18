@@ -1,0 +1,164 @@
+<template>
+	<view v-if="show" class="overlay" @click="emit('close')">
+		<view class="sheet" @click.stop>
+			<view class="header">
+				<view>
+					<view class="title">添加分类</view>
+					<view class="sub">管理已有分类并可删除</view>
+				</view>
+				<view class="close" @click="emit('close')">×</view>
+			</view>
+
+			<view class="list">
+				<view v-if="categories.length === 0" class="empty">暂无分类</view>
+				<view v-for="c in categories" :key="c" class="row">
+					<view class="name">{{ c }}</view>
+					<view class="del" @click="emit('delete', c)">删除</view>
+				</view>
+			</view>
+
+			<view class="add">
+				<input class="input" v-model="newName" placeholder="请输入新分类名称" />
+				<view class="btn" @click="onAdd">添加</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script setup>
+	import { ref } from 'vue'
+
+	const props = defineProps<{
+		show: boolean
+		categories: string[]
+	}>()
+
+	const emit = defineEmits<{
+		(e: 'close'): void
+		(e: 'add', name: string): void
+		(e: 'delete', name: string): void
+	}>()
+
+	const newName = ref('')
+
+	function onAdd() {
+		const name = String(newName.value || '').trim()
+		if (!name) return
+		emit('add', name)
+		newName.value = ''
+	}
+</script>
+
+<style>
+	.overlay {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.35);
+		justify-content: flex-end;
+	}
+
+	.sheet {
+		background-color: rgba(255, 255, 255, 0.96);
+		border-top-left-radius: 18px;
+		border-top-right-radius: 18px;
+		padding: 16px;
+		margin-bottom: 58px;
+		padding-bottom: calc(16px + env(safe-area-inset-bottom));
+	}
+
+	.header {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.title {
+		font-size: 18px;
+		font-weight: 900;
+		color: #111827;
+	}
+
+	.sub {
+		margin-top: 4px;
+		font-size: 13px;
+		color: rgba(17, 24, 39, 0.6);
+	}
+
+	.close {
+		width: 34px;
+		height: 34px;
+		border-radius: 10px;
+		align-items: center;
+		justify-content: center;
+		background-color: rgba(17, 24, 39, 0.06);
+		color: rgba(17, 24, 39, 0.8);
+		font-size: 22px;
+		line-height: 22px;
+	}
+
+	.list {
+		margin-top: 14px;
+		max-height: 260px;
+	}
+
+	.empty {
+		padding: 14px 0;
+		color: rgba(17, 24, 39, 0.5);
+		font-size: 13px;
+		text-align: center;
+	}
+
+	.row {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding: 12px 0;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: rgba(17, 24, 39, 0.06);
+	}
+
+	.name {
+		font-size: 14px;
+		font-weight: 800;
+		color: rgba(17, 24, 39, 0.85);
+	}
+
+	.del {
+		padding: 6px 10px;
+		border-radius: 10px;
+		background-color: rgba(255, 0, 0, 0.08);
+		color: #ff2d2d;
+		font-size: 13px;
+		font-weight: 800;
+	}
+
+	.add {
+		margin-top: 14px;
+		flex-direction: row;
+		gap: 10px;
+	}
+
+	.input {
+		flex: 1;
+		background-color: rgba(17, 24, 39, 0.04);
+		border-radius: 10px;
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+
+	.btn {
+		width: 86px;
+		height: 40px;
+		border-radius: 12px;
+		align-items: center;
+		justify-content: center;
+		background-color: #0b1020;
+		color: #ffffff;
+		font-size: 14px;
+		font-weight: 900;
+	}
+</style>

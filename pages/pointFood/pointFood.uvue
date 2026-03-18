@@ -2,25 +2,149 @@
 	<!-- #ifdef APP -->
 	<scroll-view style="flex:1">
 	<!-- #endif -->
-		
+		<SwiperCard :images="bannerImages" />
+		<CategoryTabs v-model="activeCategory" :categories="categories" />
+		<view class="page-wrap">
+			<FoodCard
+				v-for="f in filteredFoods"
+				:key="f.id"
+				:item="f"
+				:count="counts[f.id] || 0"
+				@add="handleAdd"
+				@sub="handleSub"
+			/>
+		</view>
 	<!-- #ifdef APP -->
 	</scroll-view>
 	<!-- #endif -->
+
+	<CartBar :count="cartCount" :money="cartMoney" @click="goCart" />
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				
-			}
+<script setup>
+	import { computed, reactive, ref } from 'vue'
+	import FoodCard from '@/component/foodCard.uvue'
+	import SwiperCard from '@/component/swiperCard.uvue'
+	import CategoryTabs from '@/component/categoryTabs.uvue'
+	import CartBar from '@/component/cartBar.uvue'
+	import { ensureFoods, loadCart, saveCart } from '@/common/dataStore'
+
+	const bannerImages = ref<string[]>([
+		'/static/swiper/swiper1.jpg',
+		'/static/swiper/swiper2.jpg',
+		'/static/swiper/swiper3.jpg',
+		'/static/swiper/swiper4.jpg'
+	])
+
+	const fallbackFoods = [
+		{
+			id: '1',
+			name: '宫保鸡丁',
+			price: 38,
+			category: '川菜',
+			description: '经典川菜，香辣可口',
+			image:
+				'https://images.unsplash.com/photo-1690370714705-6fd90ab5807d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGluZXNlJTIwa3VuZyUyMHBhbyUyMGNoaWNrZW4lMjBkaXNofGVufDF8fHx8MTc3MzY0OTQ0Mnww&ixlib=rb-4.1.0&q=80&w=1080'
 		},
-		methods: {
-			
+		{
+			id: '2',
+			name: '麻婆豆腐',
+			price: 28,
+			category: '川菜',
+			description: '麻辣鲜香，下饭佳品',
+			image:
+				'https://images.unsplash.com/photo-1769065647078-f067eb768035?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXBvJTIwdG9mdSUyMGNoaW5lc2UlMjBmb29kfGVufDF8fHx8MTc3MzY0OTQ0M3ww&ixlib=rb-4.1.0&q=80&w=1080'
+		},
+		{
+			id: '3',
+			name: '西湖醋鱼',
+			price: 68,
+			category: '浙菜',
+			description: '酸甜可口，鱼肉鲜嫩',
+			image:
+				'https://images.unsplash.com/photo-1560582346-4691ac12f6ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZXN0JTIwbGFrZSUyMGZpc2glMjBjaGluZXNlJTIwY3Vpc2luZXxlbnwxfHx8fDE3NzM2NDk0NDN8MA&ixlib=rb-4.1.0&q=80&w=1080'
+		},
+		{
+			id: '4',
+			name: '红烧肉',
+			price: 48,
+			category: '家常菜',
+			description: '肥而不腻，入口即化',
+			image:
+				'https://images.unsplash.com/photo-1759392773285-0f86affdf1df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxicmFpc2VkJTIwcG9yayUyMGJlbGx5JTIwY2hpbmVzZXxlbnwxfHx8fDE3NzM2NDk0NDR8MA&ixlib=rb-4.1.0&q=80&w=1080'
 		}
+	]
+
+	const foods = ref(ensureFoods(fallbackFoods))
+
+	const activeCategory = ref('all')
+
+	const categories = computed(() => {
+		const set = new Set<string>()
+		foods.value.forEach((f: any) => {
+			if (f.category) set.add(String(f.category))
+		})
+
+		const iconMap: Record<string, string> = {
+			川菜: '🌶️',
+			浙菜: '🐟',
+			家常菜: '🍖',
+			汤: '🥣',
+			小吃: '🍢',
+			素菜: '🥬'
+		}
+
+		return [
+			{ key: 'all', label: '肉类', icon: '🍗' },
+			...Array.from(set).map((k) => ({
+				key: k,
+				label: k,
+				icon: iconMap[k] || '🍽️'
+			}))
+		]
+	})
+
+	const filteredFoods = computed(() => {
+		if (activeCategory.value === 'all') return foods.value
+		return foods.value.filter((f: any) => String(f.category) === activeCategory.value)
+	})
+
+	const counts = reactive<Record<string | number, number>>(loadCart())
+
+	function handleAdd(item: any) {
+		const id = item.id
+		counts[id] = (counts[id] || 0) + 1
+		saveCart(counts as any)
+	}
+
+	function handleSub(item: any) {
+		const id = item.id
+		const cur = counts[id] || 0
+		const next = Math.max(0, cur - 1)
+		if (next === 0) delete counts[id]
+		else counts[id] = next
+		saveCart(counts as any)
+	}
+
+	const cartCount = computed(() => Object.values(counts).reduce((s, n) => s + (Number(n) || 0), 0))
+	const cartTotal = computed(() => {
+		let sum = 0
+		const map = counts as any
+		foods.value.forEach((f: any) => {
+			const qty = Number(map[f.id]) || 0
+			if (qty > 0) sum += qty * Number(f.price || 0)
+		})
+		return sum
+	})
+	const cartMoney = computed(() => cartTotal.value.toFixed(2))
+
+	function goCart() {
+		uni.navigateTo({ url: '/pages/cart/cart' })
 	}
 </script>
 
 <style>
-
+	.page-wrap {
+		padding: 6px 0 calc(92px + env(safe-area-inset-bottom));
+	}
 </style>
