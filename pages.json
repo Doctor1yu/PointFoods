@@ -1,0 +1,58 @@
+{
+	"pages": [
+		{
+			"path": "pages/pointFood/pointFood",
+			"style": {
+				"navigationBarTitleText": "点菜"
+			}
+		},
+		{
+			"path": "pages/editFood/editFood",
+			"style": {
+				"navigationBarTitleText": "修改菜单"
+			}
+		},
+		{
+			"path": "pages/historyFood/historyFood",
+			"style": {
+				"navigationBarTitleText": "历史"
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "点餐系统",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8",
+		"backgroundImage":""
+	},
+	"tabBar": {
+		"list": [{
+			"pagePath": "pages/pointFood/pointFood",
+			"iconPath": "/static/diancai.png",
+			"selectedIconPath": "/static/diancai-select.png",
+			"text": ""
+		}, {
+			"pagePath": "pages/editFood/editFood",
+			"iconPath": "/static/xiugaidingdan.png",
+			"selectedIconPath": "/static/xiugaidingdan-select.png",
+			"text": ""
+		}, {
+			"pagePath": "pages/historyFood/historyFood",
+			"iconPath": "/static/lishixiao.png",
+			"selectedIconPath": "/static/lishixiao-select.png",
+			"text": ""
+		}, {
+			"pagePath": "pages/mine/mine",
+			"iconPath": "/static/wode.png",
+			"selectedIconPath": "/static/wode-select.png",
+			"text": ""
+		}]
+	}
+}
