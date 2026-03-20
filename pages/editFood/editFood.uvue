@@ -92,13 +92,13 @@
 	const categories = ref<string[]>(Array.from(new Set(foods.value.map((f) => f.category))).filter(Boolean))
 
 	const editOpen = ref(false)
-	const editing = ref<FoodItem | null>(null)
+	const editing = ref<FoodItem | undefined>(undefined)
 	const editMode = ref<'edit' | 'add'>('edit')
 	const categoryOpen = ref(false)
 
 	function openAdd() {
 		editMode.value = 'add'
-		editing.value = null
+		editing.value = undefined
 		editOpen.value = true
 	}
 
@@ -114,7 +114,7 @@
 
 	function closeEdit() {
 		editOpen.value = false
-		editing.value = null
+		editing.value = undefined
 	}
 
 	function onSave(next: FoodItem) {
@@ -142,12 +142,13 @@
 		if (!n) return
 		uni.showModal({
 			title: '删除分类',
-			content: `确认删除分类「${n}」吗？删除后相关菜品将变为「未分类」。`,
+			content: `确认删除分类「${n}」吗？删除后该分类下的相关菜品将一并被删除。`,
 			success: (res) => {
 				if (!res.confirm) return
 				categories.value = categories.value.filter((x) => x !== n)
-				foods.value = foods.value.map((f) => (f.category === n ? { ...f, category: '未分类' } : f))
-				if (!categories.value.includes('未分类')) categories.value = [...categories.value, '未分类']
+				// 删除分类后直接移除该分类下的菜品，不再重分类到「未分类」
+				foods.value = foods.value.filter((f) => f.category !== n)
+				saveFoods(foods.value)
 			}
 		})
 	}

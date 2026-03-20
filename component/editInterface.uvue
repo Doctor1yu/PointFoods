@@ -49,7 +49,7 @@
 	const props = defineProps<{
 		show: boolean
 		mode?: 'edit' | 'add'
-		item?: FoodItem | null
+		item?: FoodItem | undefined
 	}>()
 
 	const emit = defineEmits<{

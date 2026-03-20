@@ -25,14 +25,18 @@
 		icon?: string
 	}
 
-	const props = defineProps<{
+	type CategoryTabsProps = {
 		categories: CategoryItem[]
 		modelValue: string
-	}>()
+	}
 
-	const emit = defineEmits<{
+	type CategoryTabsEmits = {
 		(e: 'update:modelValue', v: string): void
-	}>()
+	}
+
+	const props = defineProps<CategoryTabsProps>()
+
+	const emit = defineEmits<CategoryTabsEmits>()
 
 	function onPick(key: string) {
 		emit('update:modelValue', key)

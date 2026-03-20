@@ -20,6 +20,8 @@
 </template>
 
 <script setup>
+	import { computed } from 'vue'
+
 	type FoodItem = {
 		id: string | number
 		name: string
@@ -30,15 +32,19 @@
 		image: string
 	}
 
-	const props = defineProps<{
+	type FoodCardProps = {
 		item: FoodItem
 		count?: number
-	}>()
+	}
 
-	const emit = defineEmits<{
+	type FoodCardEmits = {
 		(e: 'add', item: FoodItem): void
 		(e: 'sub', item: FoodItem): void
-	}>()
+	}
+
+	const props = defineProps<FoodCardProps>()
+
+	const emit = defineEmits<FoodCardEmits>()
 
 	const safeCount = computed(() => props.count ?? 0)
 

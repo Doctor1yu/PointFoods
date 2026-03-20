@@ -13,11 +13,25 @@
 <script>
 	import HistoryCard from '@/component/historyCard.uvue'
 	import { consumeOrderSuccessFlag, loadOrders } from '@/common/dataStore'
+
+	type OrderItem = {
+		id : string | number
+		name : string
+		qty : number
+		price : number
+	}
+
+	type Order = {
+		id : string | number
+		time : string
+		status : string
+		items : OrderItem[]
+	}
 	export default {
 		components: { HistoryCard },
 		data() {
 			return {
-				orders: []
+				orders: [] as Order[]
 			}
 		},
 		onShow() {
@@ -28,7 +42,7 @@
 			}
 		},
 		methods: {
-			
+
 		}
 	}
 </script>

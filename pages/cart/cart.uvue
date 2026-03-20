@@ -60,6 +60,20 @@
 		image: string
 	}
 
+	type OrderItem = {
+		id: string | number
+		name: string
+		qty: number
+		price: number
+	}
+
+	type Order = {
+		id: string
+		time: string
+		status: string
+		items: OrderItem[]
+	}
+
 	const foods = ref<Food[]>([])
 	const cart = ref<Record<string, number>>({})
 
@@ -116,14 +130,14 @@
 
 	function submit() {
 		if (cartItems.value.length === 0) return
-		const items = cartItems.value.map((it) => ({
+		const items: OrderItem[] = cartItems.value.map((it) => ({
 			id: it.id,
 			name: it.name,
 			qty: it.qty,
 			price: Number(it.price || 0)
 		}))
 
-		const order = {
+		const order: Order = {
 			id: uuid(),
 			time: nowTimeString(),
 			status: '已完成',
